@@ -50,12 +50,22 @@ PAID_RE = re.compile(r"^paid:\s*(\d+)", re.M)
 LINE_RE = re.compile(r"^## The line\n(.*?)(?=\n##|\Z)", re.M | re.S)
 
 
+def today_pt():
+    """The user's date, not UTC's — the check-ins run at 7am and 9:30pm Pacific."""
+    return dt.datetime.now(dt.timezone(dt.timedelta(hours=-7))).date()
+
+
 class Day:
     def __init__(self, date, hits, paid, line):
         self.date = date
         self.hits = hits          # set of keys checked off
         self.paid = paid          # pushups already paid
         self.line = line
+
+    @property
+    def done(self):
+        """A day still in progress owes nothing yet — you can't miss a day you're living."""
+        return self.date < today_pt()
 
     @property
     def points(self):
@@ -68,6 +78,8 @@ class Day:
 
     @property
     def owed(self):
+        if not self.done:
+            return 0
         raw = sum(v for k, v in PENALTY.items() if k not in self.hits)
         return min(raw, DAILY_DEBT_CAP)
 
@@ -91,7 +103,10 @@ def load():
         hits = {m["key"] for m in CHECK_RE.finditer(text) if m["mark"] in "xX"}
         paid = int(PAID_RE.search(text).group(1)) if PAID_RE.search(text) else 0
         line = LINE_RE.search(text)
-        days.append(Day(date, hits, paid, line.group(1).strip() if line else ""))
+        written = line.group(1).strip() if line else ""
+        if written.startswith("("):      # untouched template placeholder
+            written = ""
+        days.append(Day(date, hits, paid, written))
     return days
 
 
@@ -129,6 +144,9 @@ def report(days, only_week=None):
         wdays = weeks[wk]
         print(f"\n─── Week {wk} ─── {wdays[0].date} → {wdays[-1].date}")
         for d in wdays:
+            if not d.done:
+                print(f"  {d.date}  {d.points:>2}/{d.possible}  --  in progress")
+                continue
             missed = [k for k in POINTS if k not in d.hits and k != "run"]
             tail = f"  missed: {', '.join(missed)}" if missed else "  clean"
             print(f"  {d.date}  {d.points:>2}/{d.possible}  {d.grade}{tail}")
@@ -143,7 +161,15 @@ def report(days, only_week=None):
         print(f"  writing  {sum('write' in d.hits for d in wdays)} (floor 3)"
               f"   photos {sum('photo' in d.hits for d in wdays)}/7")
         print(f"  pushups  {owed} owed, {paid} paid, {max(owed - paid, 0)} outstanding")
-        print(f"  unlock   {unlock_for(total)}")
+
+        week_start = START + dt.timedelta(days=(wk - 1) * 7)
+        left = max(7 - ((today_pt() - week_start).days + 1), 0)
+        if left:
+            # 15/day is the conservative ceiling — the run bonus isn't assumed.
+            print(f"  unlock   holding at: {unlock_for(total)}")
+            print(f"           {left} days left, still reachable: {unlock_for(total + 15 * left)}")
+        else:
+            print(f"  unlock   {unlock_for(total)}")
 
     if only_week:
         return
