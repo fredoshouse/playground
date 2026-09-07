@@ -61,6 +61,19 @@ The reward isn't a treat, it's **access.** Things I enjoy get locked behind the 
 The whole design: make the cheap dopamine expensive and the good stuff earned, so it
 tastes like something again.
 
+## Backfill — the 48-hour window
+A day you never logged scores zero and owes the full cap, same as a day you blew. But
+they aren't the same thing, and the system says so: an unlogged day reads **not logged**,
+not D.
+
+You can backfill it for **48 hours.** Tell me what actually happened on that day and it
+gets scored for real, and the debt recalculates. After 48 hours it locks at zero and
+stays there.
+
+This is the one piece of grace in the system, and it's deliberately narrow. It exists
+because "I did the work but didn't check in" and "I did nothing" shouldn't cost the same
+— but only if you say so while you still remember the day.
+
 ## Streaks tracked
 - **Home-cooked streak** — the one I want longest. Target: 30.
 - **Move streak** — days since a full skip.

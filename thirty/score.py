@@ -63,6 +63,11 @@ class Day:
         self.line = line
 
     @property
+    def untouched(self):
+        """Never logged at all — different from a logged day that went badly."""
+        return not self.hits and not self.paid and not self.line
+
+    @property
     def done(self):
         """A day still in progress owes nothing yet — you can't miss a day you're living."""
         return self.date < today_pt()
@@ -146,6 +151,10 @@ def report(days, only_week=None):
         for d in wdays:
             if not d.done:
                 print(f"  {d.date}  {d.points:>2}/{d.possible}  --  in progress")
+                continue
+            if d.untouched:
+                backfill = "backfillable" if (today_pt() - d.date).days <= 2 else "locked"
+                print(f"  {d.date}   0/15  --  not logged ({backfill})")
                 continue
             missed = [k for k in POINTS if k not in d.hits and k != "run"]
             tail = f"  missed: {', '.join(missed)}" if missed else "  clean"
