@@ -11,8 +11,12 @@ Gmail connection).
 | 7:00 AM | `The 30 — Morning framing` | Today's scheduled work, the "one thing" you named last night quoted back, three framing questions, outstanding pushup debt |
 | 9:30 PM | `The 30 — Evening check-in` | Where you stand, the five questions, what tonight costs if it's a zero. On Sundays it sends the weekly review and unlock tier instead |
 
-The evening routine also creates the day's log file, and writes your answers into it when
-you reply — then commits and pushes. You never have to touch a file.
+The evening routine also creates the day's log file (never overwriting one that already
+has answers in it), and writes your answers into it when you reply — then commits and
+pushes. You never have to touch a file.
+
+Weeks run Sunday to Saturday. The Sunday review covers the week that just ended and sets
+the one starting Monday; on Day 1 there's nothing behind it yet, so it's skipped.
 
 Both are UTC cron under the hood (`0 14 * * *` and `30 4 * * *`) but compute dates in
 `America/Los_Angeles`, so log filenames are your dates, not UTC's.

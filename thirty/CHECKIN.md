@@ -17,6 +17,10 @@ Then you get back: today's points, the grade, your streaks, and what you owe.
 3. **What are you grateful for, and what are you asking for?**
 
 ## Weekly — Sunday night
+
+Weeks run Sunday to Saturday. So Sunday night is the *first* night of a new week — the
+week you're reviewing is the one that just ended, and the week you're setting is the one
+starting tomorrow. Day 1 lands on a Sunday, so there's no review that first night.
 1. Score, grade, streaks — what does the number say?
 2. Which Big Rock moved, and which one didn't? Why not?
 3. Debt: clear it. Log it.
