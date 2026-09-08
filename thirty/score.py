@@ -37,6 +37,8 @@ PENALTY = {
     "pray": 20,
 }
 DAILY_DEBT_CAP = 100
+# Debt that can't be paid stops being a consequence and becomes a reason to quit.
+TOTAL_DEBT_CAP = 300
 
 UNLOCKS = [
     (90, "Full weekend — night out, one purchase, screens without guilt."),
@@ -130,6 +132,17 @@ def streak(days, key):
     return n
 
 
+def stalled(days):
+    """Consecutive unlogged days at the end — the system talking to itself."""
+    n = 0
+    for day in reversed(days):
+        if day.done and day.untouched:
+            n += 1
+        else:
+            break
+    return n
+
+
 def unlock_for(total):
     return next(msg for floor, msg in UNLOCKS if total >= floor)
 
@@ -191,10 +204,18 @@ def report(days, only_week=None):
     print(f"  home streak   {streak(days, 'home')}  (target 30)")
     print(f"  move streak   {streak(days, 'move')}")
     print(f"  write streak  {streak(days, 'write')}")
-    outstanding = max(sum(d.owed for d in days) - sum(d.paid for d in days), 0)
-    print(f"  pushup debt   {outstanding} outstanding")
+    raw_debt = max(sum(d.owed for d in days) - sum(d.paid for d in days), 0)
+    outstanding = min(raw_debt, TOTAL_DEBT_CAP)
+    capped = " (capped)" if raw_debt > TOTAL_DEBT_CAP else ""
+    print(f"  pushup debt   {outstanding} outstanding{capped}")
     if outstanding:
         print(f"                pay it inside 48h or it doubles.")
+
+    stall = stalled(days)
+    if stall >= 2:
+        print(f"\n  !! {stall} days unlogged in a row. The debt has stopped counting.")
+        print(f"     This isn't an accountability system any more, it's an inbox.")
+        print(f"     Ask him: restart, adjust the targets, or stop.")
     photos = sum('photo' in d.hits for d in days)
     print(f"  the story     {photos} photos, {sum(bool(d.line) for d in days)} lines written")
 
