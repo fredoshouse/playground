@@ -8,8 +8,10 @@ Gmail connection).
 
 | When | Routine | What it sends |
 |------|---------|---------------|
-| 7:00 AM | `The 30 — Morning framing` | Today's scheduled work, the "one thing" you named last night quoted back, three framing questions, outstanding pushup debt |
-| 9:30 PM | `The 30 — Evening check-in` | Where you stand, the five questions, what tonight costs if it's a zero. On Sundays it sends the weekly review and unlock tier instead |
+| 9:30 PM | `The 30 — Nightly check-in` | Where you stand, three questions, what's still reachable this week. On Sundays it adds the weekly review and unlock tier |
+
+The 7:00 AM morning routine is **disabled**. Two emails a day was too many for a system
+nobody had started yet; it can be switched back on any time.
 
 The evening routine also creates the day's log file (never overwriting one that already
 has answers in it), and writes your answers into it when you reply — then commits and
@@ -18,8 +20,8 @@ pushes. You never have to touch a file.
 Weeks run Sunday to Saturday. The Sunday review covers the week that just ended and sets
 the one starting Monday; on Day 1 there's nothing behind it yet, so it's skipped.
 
-Both are UTC cron under the hood (`0 14 * * *` and `30 4 * * *`) but compute dates in
-`America/Los_Angeles`, so log filenames are your dates, not UTC's.
+It's UTC cron under the hood (`30 4 * * *`) but computes dates in `America/Los_Angeles`,
+so log filenames are your dates, not UTC's.
 
 ## Calendar — alfred@fredoshouse.com
 

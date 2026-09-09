@@ -15,14 +15,15 @@ from pathlib import Path
 LOG_DIR = Path(__file__).parent / "log"
 START = dt.date(2026, 9, 6)
 
+# Days 1-3 ran the seven-daily version, went unlogged, and are void. The design was
+# too big to start with; that's not a debt he owes. Scoring restarts here.
+RESET = dt.date(2026, 9, 9)
+
+# Three dailies. Body, money, sleep. The other four come back once there's a streak
+# worth protecting — see CHARTER.md.
 POINTS = {
     "move": 3,
-    "run": 2,
     "home": 2,
-    "write": 3,
-    "photo": 1,
-    "pray": 2,
-    "phone": 2,
     "sleep": 2,
 }
 
@@ -30,20 +31,19 @@ POINTS = {
 PENALTY = {
     "move": 25,
     "home": 30,
-    "write": 20,
-    "phone": 15,
     "sleep": 15,
-    "photo": 10,
-    "pray": 20,
 }
 DAILY_DEBT_CAP = 100
 # Debt that can't be paid stops being a consequence and becomes a reason to quit.
 TOTAL_DEBT_CAP = 300
 
+DAY_MAX = sum(POINTS.values())      # 7
+WEEK_MAX = DAY_MAX * 7              # 49
+
 UNLOCKS = [
-    (90, "Full weekend — night out, one purchase, screens without guilt."),
-    (75, "Pick ONE of the three. Deliberately."),
-    (60, "Nothing discretionary. Rest, then earn it back."),
+    (44, "Full weekend — night out, one purchase, screens without guilt."),
+    (37, "Pick ONE of the three. Deliberately."),
+    (29, "Nothing discretionary. Rest, then earn it back."),
     (0, "No spend, no night out. This week's Big Rock goes to the top of next week."),
 ]
 
@@ -70,22 +70,28 @@ class Day:
         return not self.hits and not self.paid and not self.line
 
     @property
+    def void(self):
+        """Ran under the abandoned seven-daily design. Not scored, not charged."""
+        return self.date < RESET
+
+    @property
     def done(self):
         """A day still in progress owes nothing yet — you can't miss a day you're living."""
         return self.date < today_pt()
 
     @property
     def points(self):
+        if self.void:
+            return 0
         return sum(v for k, v in POINTS.items() if k in self.hits)
 
     @property
     def possible(self):
-        # A non-run day tops out at 15; the run bonus only counts on run days.
-        return sum(POINTS.values()) if "run" in self.hits else sum(POINTS.values()) - POINTS["run"]
+        return 0 if self.void else DAY_MAX
 
     @property
     def owed(self):
-        if not self.done:
+        if not self.done or self.void:
             return 0
         raw = sum(v for k, v in PENALTY.items() if k not in self.hits)
         return min(raw, DAILY_DEBT_CAP)
@@ -93,7 +99,7 @@ class Day:
     @property
     def grade(self):
         p = self.points
-        return "A" if p >= 13 else "B" if p >= 11 else "C" if p >= 9 else "D"
+        return "A" if p >= DAY_MAX else "B" if p >= 5 else "C" if p >= 3 else "D"
 
 
 def load():
@@ -160,64 +166,62 @@ def report(days, only_week=None):
         if only_week and wk != only_week:
             continue
         wdays = weeks[wk]
+        live = [d for d in wdays if not d.void]
         print(f"\n─── Week {wk} ─── {wdays[0].date} → {wdays[-1].date}")
         for d in wdays:
-            if not d.done:
-                print(f"  {d.date}  {d.points:>2}/{d.possible}  --  in progress")
-                continue
-            if d.untouched:
-                backfill = "backfillable" if (today_pt() - d.date).days <= 2 else "locked"
-                print(f"  {d.date}   0/15  --  not logged ({backfill})")
-                continue
-            missed = [k for k in POINTS if k not in d.hits and k != "run"]
-            tail = f"  missed: {', '.join(missed)}" if missed else "  clean"
-            print(f"  {d.date}  {d.points:>2}/{d.possible}  {d.grade}{tail}")
+            if d.void:
+                print(f"  {d.date}   --      void (pre-reset)")
+            elif not d.done:
+                print(f"  {d.date}  {d.points:>2}/{DAY_MAX}   in progress")
+            elif d.untouched:
+                window = "backfillable" if (today_pt() - d.date).days <= 2 else "locked"
+                print(f"  {d.date}   0/{DAY_MAX}   not logged ({window})")
+            else:
+                missed = [k for k in POINTS if k not in d.hits]
+                tail = f"  missed: {', '.join(missed)}" if missed else "  clean"
+                print(f"  {d.date}  {d.points:>2}/{DAY_MAX}   {d.grade}{tail}")
 
-        total = sum(d.points for d in wdays)
-        owed = sum(d.owed for d in wdays)
-        paid = sum(d.paid for d in wdays)
-        print(f"\n  points   {total}/105")
-        print(f"  workouts {sum('move' in d.hits for d in wdays)} (floor 4)"
-              f"   runs {sum('run' in d.hits for d in wdays)} (floor 2)"
-              f"   home {sum('home' in d.hits for d in wdays)} (floor 3)")
-        print(f"  writing  {sum('write' in d.hits for d in wdays)} (floor 3)"
-              f"   photos {sum('photo' in d.hits for d in wdays)}/7")
+        if not live:
+            continue
+        total = sum(d.points for d in live)
+        owed = sum(d.owed for d in live)
+        paid = sum(d.paid for d in live)
+        print(f"\n  points   {total}/{WEEK_MAX}")
+        print(f"  moved {sum('move' in d.hits for d in live)} (floor 4)"
+              f"   ate home {sum('home' in d.hits for d in live)} (floor 3)"
+              f"   in bed on time {sum('sleep' in d.hits for d in live)}")
         print(f"  pushups  {owed} owed, {paid} paid, {max(owed - paid, 0)} outstanding")
 
         week_start = START + dt.timedelta(days=(wk - 1) * 7)
         left = max(7 - ((today_pt() - week_start).days + 1), 0)
         if left:
-            # 15/day is the conservative ceiling — the run bonus isn't assumed.
             print(f"  unlock   holding at: {unlock_for(total)}")
-            print(f"           {left} days left, still reachable: {unlock_for(total + 15 * left)}")
+            print(f"           {left} days left, still reachable: {unlock_for(total + DAY_MAX * left)}")
         else:
             print(f"  unlock   {unlock_for(total)}")
 
     if only_week:
         return
 
+    live = [d for d in days if not d.void]
     print("\n═══ The 30 ═══")
-    elapsed = (days[-1].date - START).days + 1
-    print(f"  day {elapsed} of 30 — {len(days)} logged")
-    print(f"  points        {sum(d.points for d in days)} / {sum(d.possible for d in days)}")
-    print(f"  perfect days  {sum(d.points >= 15 for d in days)}")
+    print(f"  day {(days[-1].date - START).days + 1} of 30 — {len(live)} scored since the reset")
+    print(f"  points        {sum(d.points for d in live)} / {sum(d.possible for d in live)}")
+    print(f"  clean days    {sum(d.points == DAY_MAX for d in live)}")
     print(f"  home streak   {streak(days, 'home')}  (target 30)")
     print(f"  move streak   {streak(days, 'move')}")
-    print(f"  write streak  {streak(days, 'write')}")
-    raw_debt = max(sum(d.owed for d in days) - sum(d.paid for d in days), 0)
+    print(f"  sleep streak  {streak(days, 'sleep')}")
+    raw_debt = max(sum(d.owed for d in live) - sum(d.paid for d in live), 0)
     outstanding = min(raw_debt, TOTAL_DEBT_CAP)
-    capped = " (capped)" if raw_debt > TOTAL_DEBT_CAP else ""
-    print(f"  pushup debt   {outstanding} outstanding{capped}")
+    print(f"  pushup debt   {outstanding} outstanding{' (capped)' if raw_debt > TOTAL_DEBT_CAP else ''}")
     if outstanding:
-        print(f"                pay it inside 48h or it doubles.")
+        print("                pay it inside 48h or it doubles.")
 
-    stall = stalled(days)
+    stall = stalled([d for d in live])
     if stall >= 2:
-        print(f"\n  !! {stall} days unlogged in a row. The debt has stopped counting.")
-        print(f"     This isn't an accountability system any more, it's an inbox.")
-        print(f"     Ask him: restart, adjust the targets, or stop.")
-    photos = sum('photo' in d.hits for d in days)
-    print(f"  the story     {photos} photos, {sum(bool(d.line) for d in days)} lines written")
+        print(f"\n  !! {stall} days unlogged in a row since the reset.")
+        print("     Three dailies and one email was already the smaller version.")
+        print("     Ask him directly whether to stop.")
 
 
 def main():
