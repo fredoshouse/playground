@@ -40,11 +40,13 @@ TOTAL_DEBT_CAP = 300
 DAY_MAX = sum(POINTS.values())      # 7
 WEEK_MAX = DAY_MAX * 7              # 49
 
+# Shares of what was actually scoreable that week, not of a flat 49 — a week with void
+# days still has a reachable top tier.
 UNLOCKS = [
-    (44, "Full weekend — night out, one purchase, screens without guilt."),
-    (37, "Pick ONE of the three. Deliberately."),
-    (29, "Nothing discretionary. Rest, then earn it back."),
-    (0, "No spend, no night out. This week's Big Rock goes to the top of next week."),
+    (0.90, "Full weekend — night out, one purchase, screens without guilt."),
+    (0.75, "Pick ONE of the three. Deliberately."),
+    (0.60, "Nothing discretionary. Rest, then earn it back."),
+    (0.0, "No spend, no night out. This week's Big Rock goes to the top of next week."),
 ]
 
 CHECK_RE = re.compile(r"^- \[(?P<mark>[ xX])\]\s*(?P<key>\w+)", re.M)
@@ -149,8 +151,9 @@ def stalled(days):
     return n
 
 
-def unlock_for(total):
-    return next(msg for floor, msg in UNLOCKS if total >= floor)
+def unlock_for(total, ceiling):
+    share = total / ceiling if ceiling else 0
+    return next(msg for floor, msg in UNLOCKS if share >= floor)
 
 
 def report(days, only_week=None):
@@ -183,22 +186,29 @@ def report(days, only_week=None):
 
         if not live:
             continue
+        # Scoreable days in this week's Sun-Sat window: void days can't be earned back.
+        week_start = START + dt.timedelta(days=(wk - 1) * 7)
+        scoreable = sum(1 for i in range(7) if (week_start + dt.timedelta(days=i)) >= RESET)
+        ceiling = scoreable * DAY_MAX
         total = sum(d.points for d in live)
         owed = sum(d.owed for d in live)
         paid = sum(d.paid for d in live)
-        print(f"\n  points   {total}/{WEEK_MAX}")
+        print(f"\n  points   {total}/{ceiling}" + (f"  ({scoreable} scoreable days)" if ceiling != WEEK_MAX else ""))
         print(f"  moved {sum('move' in d.hits for d in live)} (floor 4)"
               f"   ate home {sum('home' in d.hits for d in live)} (floor 3)"
               f"   in bed on time {sum('sleep' in d.hits for d in live)}")
         print(f"  pushups  {owed} owed, {paid} paid, {max(owed - paid, 0)} outstanding")
 
-        week_start = START + dt.timedelta(days=(wk - 1) * 7)
-        left = max(7 - ((today_pt() - week_start).days + 1), 0)
-        if left:
-            print(f"  unlock   holding at: {unlock_for(total)}")
-            print(f"           {left} days left, still reachable: {unlock_for(total + DAY_MAX * left)}")
+        # Days still winnable in this week, today included — today isn't over yet.
+        floor_day = max(today_pt(), RESET)
+        remaining = sum(1 for i in range(7) if (week_start + dt.timedelta(days=i)) >= floor_day)
+        if remaining:
+            banked = sum(d.points for d in live if d.done)
+            print(f"  unlock   holding at: {unlock_for(total, ceiling)}")
+            print(f"           {remaining} days still winnable, best case: "
+                  f"{unlock_for(banked + DAY_MAX * remaining, ceiling)}")
         else:
-            print(f"  unlock   {unlock_for(total)}")
+            print(f"  unlock   {unlock_for(total, ceiling)}")
 
     if only_week:
         return
