@@ -73,8 +73,13 @@ class Day:
 
     @property
     def void(self):
-        """Ran under the abandoned seven-daily design. Not scored, not charged."""
-        return self.date < RESET
+        """Ran under the abandoned seven-daily design.
+
+        Void means "not charged for my silence", not "your life didn't count." If he
+        goes back and says what actually happened, the day scores — move, home and
+        sleep were all in the old seven, so his answers map straight across.
+        """
+        return self.date < RESET and self.untouched
 
     @property
     def done(self):
@@ -186,9 +191,13 @@ def report(days, only_week=None):
 
         if not live:
             continue
-        # Scoreable days in this week's Sun-Sat window: void days can't be earned back.
+        # Scoreable days in this week's Sun-Sat window: everything from the reset on,
+        # plus any earlier day he went back and answered for.
         week_start = START + dt.timedelta(days=(wk - 1) * 7)
-        scoreable = sum(1 for i in range(7) if (week_start + dt.timedelta(days=i)) >= RESET)
+        recovered = {d.date for d in live if d.date < RESET}
+        scoreable = sum(1 for i in range(7)
+                        if (week_start + dt.timedelta(days=i)) >= RESET
+                        or (week_start + dt.timedelta(days=i)) in recovered)
         ceiling = scoreable * DAY_MAX
         total = sum(d.points for d in live)
         owed = sum(d.owed for d in live)
