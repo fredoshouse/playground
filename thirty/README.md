@@ -41,7 +41,7 @@ Mark a win with `- [x]`, a miss with `- [ ]`, and `- [?]` for something you were
 asked about — unknown never costs you points or pushups. Pushups you actually did go on
 the `paid:` line.
 
-`writing/` holds article seeds pulled out of the check-ins.
+`letters/` holds article seeds pulled out of the check-ins.
 
 ## The rule that matters
 

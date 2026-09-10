@@ -32,14 +32,14 @@ than things I count.
 Still undated. These need dates before they're real.
 - [ ] Yard sale — he named the back half of this week
 - [ ] Book therapy — he raised it twice, unprompted. Closest thing to a decision already made
-- [ ] Get the money on one page — see `writing/the-base.md`
+- [ ] Get the money on one page — see `letters/seeds/the-base.md`
 - [ ] Painting + photos hung
 - [ ] Marriage license
 - [ ] Book marriage counseling
 - [ ] Anniversary planned and paid for
 - [ ] Conference prep — October readiness
 - [ ] Finish the book
-- [ ] Three articles are seeded and unwritten — see `writing/`
+- [ ] Three articles are seeded and unwritten — see `letters/`
 
 ## What's actually going on — as of Sept 9
 Context the coach should be holding, not scoring.
@@ -57,7 +57,7 @@ rather than a task. The open question is whether he can carry both at once.
 
 **Money.** Savings rate 0.1% while earning the most he ever has. Debt rising. Feels
 overextended and taxed rather than overspending — and he's right that it's a leverage
-problem, not a spending one. This is the thing under most of the stress. `writing/the-base.md`.
+problem, not a spending one. This is the thing under most of the stress. `letters/seeds/the-base.md`.
 
 **Home.** Wedding planning with his fiancée is grinding. Money conversations don't land
 the way he means them. He says he gets frustrated too fast and wants to work on it.
