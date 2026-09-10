@@ -49,7 +49,8 @@ UNLOCKS = [
     (0.0, "No spend, no night out. This week's Big Rock goes to the top of next week."),
 ]
 
-CHECK_RE = re.compile(r"^- \[(?P<mark>[ xX])\]\s*(?P<key>\w+)", re.M)
+# "x" done, " " missed, "?" asked but not answered — unknown is not the same as missed.
+CHECK_RE = re.compile(r"^- \[(?P<mark>[ xX?])\]\s*(?P<key>\w+)", re.M)
 PAID_RE = re.compile(r"^paid:\s*(\d+)", re.M)
 LINE_RE = re.compile(r"^## The line\n(.*?)(?=\n##|\Z)", re.M | re.S)
 
@@ -60,16 +61,17 @@ def today_pt():
 
 
 class Day:
-    def __init__(self, date, hits, paid, line):
+    def __init__(self, date, hits, unknown, paid, line):
         self.date = date
         self.hits = hits          # set of keys checked off
+        self.unknown = unknown    # asked, never answered — scores nothing, costs nothing
         self.paid = paid          # pushups already paid
         self.line = line
 
     @property
     def untouched(self):
         """Never logged at all — different from a logged day that went badly."""
-        return not self.hits and not self.paid and not self.line
+        return not self.hits and not self.unknown and not self.paid and not self.line
 
     @property
     def void(self):
@@ -94,19 +96,25 @@ class Day:
 
     @property
     def possible(self):
-        return 0 if self.void else DAY_MAX
+        if self.void:
+            return 0
+        # Don't hold him to points for a question he was never asked to answer.
+        return DAY_MAX - sum(POINTS[k] for k in self.unknown)
 
     @property
     def owed(self):
         if not self.done or self.void:
             return 0
-        raw = sum(v for k, v in PENALTY.items() if k not in self.hits)
+        raw = sum(v for k, v in PENALTY.items()
+                  if k not in self.hits and k not in self.unknown)
         return min(raw, DAILY_DEBT_CAP)
 
     @property
     def grade(self):
-        p = self.points
-        return "A" if p >= DAY_MAX else "B" if p >= 5 else "C" if p >= 3 else "D"
+        p, top = self.points, self.possible
+        if p >= top:
+            return "A"
+        return "B" if p >= 5 else "C" if p >= 3 else "D"
 
 
 def load():
@@ -120,13 +128,15 @@ def load():
             print(f"skipping {path.name}: filename must be YYYY-MM-DD.md", file=sys.stderr)
             continue
         text = path.read_text()
-        hits = {m["key"] for m in CHECK_RE.finditer(text) if m["mark"] in "xX"}
+        marks = {m["key"]: m["mark"] for m in CHECK_RE.finditer(text)}
+        hits = {k for k, v in marks.items() if v in "xX"}
+        unknown = {k for k, v in marks.items() if v == "?"}
         paid = int(PAID_RE.search(text).group(1)) if PAID_RE.search(text) else 0
         line = LINE_RE.search(text)
         written = line.group(1).strip() if line else ""
         if written.startswith("("):      # untouched template placeholder
             written = ""
-        days.append(Day(date, hits, paid, written))
+        days.append(Day(date, hits, unknown, paid, written))
     return days
 
 
@@ -185,9 +195,14 @@ def report(days, only_week=None):
                 window = "backfillable" if (today_pt() - d.date).days <= 2 else "locked"
                 print(f"  {d.date}   0/{DAY_MAX}   not logged ({window})")
             else:
-                missed = [k for k in POINTS if k not in d.hits]
-                tail = f"  missed: {', '.join(missed)}" if missed else "  clean"
-                print(f"  {d.date}  {d.points:>2}/{DAY_MAX}   {d.grade}{tail}")
+                missed = [k for k in POINTS if k not in d.hits and k not in d.unknown]
+                bits = []
+                if missed:
+                    bits.append(f"missed: {', '.join(missed)}")
+                if d.unknown:
+                    bits.append(f"unanswered: {', '.join(sorted(d.unknown))}")
+                tail = "  " + " · ".join(bits) if bits else "  clean"
+                print(f"  {d.date}  {d.points:>2}/{d.possible}   {d.grade}{tail}")
 
         if not live:
             continue

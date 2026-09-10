@@ -4,6 +4,8 @@
 - [ ] home
 - [ ] sleep
 
+<!-- x done · space missed · ? asked but not answered -->
+
 paid: 0
 
 ## The line

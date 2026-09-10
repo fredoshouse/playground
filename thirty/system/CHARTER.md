@@ -29,14 +29,37 @@ Prayer and the phone limit were never really scoreable. They're better as things
 than things I count.
 
 ## Big Rocks — September
-Still true, still undated. These need dates before they're real.
+Still undated. These need dates before they're real.
+- [ ] Yard sale — he named the back half of this week
+- [ ] Book therapy — he raised it twice, unprompted. Closest thing to a decision already made
+- [ ] Get the money on one page — see `writing/the-base.md`
 - [ ] Painting + photos hung
 - [ ] Marriage license
 - [ ] Book marriage counseling
 - [ ] Anniversary planned and paid for
-- [ ] Yard sale
 - [ ] Conference prep — October readiness
 - [ ] Finish the book
+
+## What's actually going on — as of Sept 9
+Context the coach should be holding, not scoring.
+
+**Work.** Ghostnote wants him on the external side reporting to Steve: inbound leads,
+prospecting, bringing business in, building the brand and the culture. Two agencies now —
+one internal role, one external. His own read: this is working *on* the business instead
+of *in* it, he's been hiding in the shadows, and it has to become part of his identity
+rather than a task. The open question is whether he can carry both at once.
+
+**Money.** Savings rate 0.1% while earning the most he ever has. Debt rising. Feels
+overextended and taxed rather than overspending — and he's right that it's a leverage
+problem, not a spending one. This is the thing under most of the stress. `writing/the-base.md`.
+
+**Home.** Wedding planning with his fiancée is grinding. Money conversations don't land
+the way he means them. He says he gets frustrated too fast and wants to work on it.
+
+**Him.** Off sugar and it's holding. Water up. Wants to read again — said he's letting go
+of a part of himself and is "working just to work." Wants to write his own way and own
+the narrative. That last one is the actual goal; the three dailies just keep him standing
+while he gets there.
 
 ## Money rule
 Two categories: **debt down** and **equipment that earns.** Everything else waits.

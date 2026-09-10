@@ -37,7 +37,11 @@ Normally the nightly routine does this for you.
 cp thirty/log/_TEMPLATE.md thirty/log/$(date +%F).md
 ```
 
-Mark a win with `- [x]`. Pushups you actually did go on the `paid:` line.
+Mark a win with `- [x]`, a miss with `- [ ]`, and `- [?]` for something you were never
+asked about — unknown never costs you points or pushups. Pushups you actually did go on
+the `paid:` line.
+
+`writing/` holds article seeds pulled out of the check-ins.
 
 ## The rule that matters
 

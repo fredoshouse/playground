@@ -27,6 +27,13 @@ Pay within 48 hours or it doubles. Capped at 100 a day and **300 total** — a n
 can't pay isn't a consequence, it's an excuse to quit. Sunday night it clears; you start
 every week at zero.
 
+## Three states, not two
+`- [x]` done. `- [ ]` missed. `- [?]` asked but not answered.
+
+Unknown is not the same as missed. A `?` scores no points and costs no pushups, and the
+day's total drops to match — answer three of three and you get an A even if only two were
+asked. The system never charges for something it doesn't know.
+
 ## Backfill — 48 hours
 An unlogged day reads **not logged**, not D, and can be backfilled for 48 hours: say
 what actually happened and it scores for real. After that it locks at zero.
