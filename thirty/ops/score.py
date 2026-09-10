@@ -145,13 +145,19 @@ def week_of(date):
 
 
 def streak(days, key):
-    """Current run of consecutive logged days ending at the most recent log."""
+    """Consecutive days ending at the most recent answered one.
+
+    A day still in progress, and a day he was never asked about, neither extend the
+    streak nor break it — they're skipped. Only an actual miss breaks it.
+    """
     n = 0
     for day in reversed(days):
-        if key in day.hits:
+        if key in day.hits:            # already done, even if the day is still running
             n += 1
+        elif not day.done or day.void or key in day.unknown:
+            continue                   # nothing known yet — neither extends nor breaks
         else:
-            break
+            break                      # a real miss
     return n
 
 
