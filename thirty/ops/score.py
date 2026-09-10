@@ -2,8 +2,8 @@
 """Tally The 30. Reads thirty/log/*.md, prints where you stand.
 
 Usage:
-    python3 score.py            # full standing
-    python3 score.py --week 2   # one week
+    python3 ops/score.py            # full standing
+    python3 ops/score.py --week 2   # one week
 """
 
 import argparse
@@ -12,7 +12,7 @@ import re
 import sys
 from pathlib import Path
 
-LOG_DIR = Path(__file__).parent / "log"
+LOG_DIR = Path(__file__).resolve().parent.parent / "log"
 START = dt.date(2026, 9, 6)
 
 # Days 1-3 ran the seven-daily version, went unlogged, and are void. The design was

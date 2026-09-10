@@ -1,41 +1,45 @@
 # The 30
 
-An accountability system for Sept 6 → Oct 5, 2026. Seven scored dailies, a point total,
-a pushup debt for misses, and a weekly unlock that puts the good stuff behind the work.
+Three things a day, every day, through Oct 5, 2026. Move. Eat at home. In bed by 10:30.
 
-## The files
+One email a night at 9:30. Hit reply — "yes, yes, 11" is a complete answer. It gets read,
+scored, and answered in the same thread.
 
-| File | What it's for |
-|------|---------------|
-| `CHARTER.md` | Why this exists, the seven dailies, September's Big Rocks. Read it when you don't feel like it. |
-| `SCORING.md` | Points, penalties, unlocks, streaks. The rules of the game. |
-| `CHECKIN.md` | The exact questions — morning, evening, Sunday. |
-| `log/YYYY-MM-DD.md` | One file per day. Checkboxes + the day's one line. |
-| `weekly/week-N.md` | Sunday review. |
-| `score.py` | Does the math. |
+## Where everything lives
 
-## The daily loop
+```
+thirty/
+├── system/      the rules
+│   ├── CHARTER.md    why this exists, the three dailies, September's Big Rocks
+│   ├── SCORING.md    points, pushup debt, backfill window, unlock tiers
+│   └── CHECKIN.md    the questions — nightly and Sunday
+├── voice/
+│   └── VOICE.md      who's writing the emails, and how
+├── ops/
+│   ├── SETUP.md      what's wired up: routines, calendar, delivery
+│   └── score.py      does the math
+├── log/         one file per day
+└── weekly/      Sunday reviews
+```
 
-1. **Morning** — three framing questions from `CHECKIN.md`.
-2. **Evening** — five questions. Answer in one line each; I fill the log.
-3. `python3 thirty/score.py` — points, grade, streaks, what you owe.
+## Checking the score
 
-## Starting a day
+```bash
+python3 thirty/ops/score.py            # everything
+python3 thirty/ops/score.py --week 2   # one week
+```
+
+## Starting a day by hand
+
+Normally the nightly routine does this for you.
 
 ```bash
 cp thirty/log/_TEMPLATE.md thirty/log/$(date +%F).md
 ```
 
-Mark a win with `- [x]`. Record pushups you actually did on the `paid:` line.
+Mark a win with `- [x]`. Pushups you actually did go on the `paid:` line.
 
-## Checking the score
-
-```bash
-python3 thirty/score.py            # everything
-python3 thirty/score.py --week 2   # one week
-```
-
-## The one rule that matters
+## The rule that matters
 
 Honest beats good. A logged D is worth more than an unlogged A — the whole thing only
 works if the number is real.

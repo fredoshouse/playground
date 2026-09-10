@@ -11,7 +11,7 @@ Gmail connection).
 | 9:30 PM | `The 30 — Nightly check-in` | Sweeps the last three days for replies you haven't been answered on, then sends where you stand, three questions, and what's still reachable. Sundays it adds the weekly review and unlock tier |
 | 11:15 PM | `The 30 — Read replies` | Reads your reply, marks the day, commits it, and answers you in the same thread with your points, grade and streaks. Silent if you haven't replied |
 
-**Voice.** `VOICE.md` is the voice guide, with an appendix on how it applies here. Every
+**Voice.** `voice/VOICE.md` is the voice guide, with an appendix on how it applies here. Every
 routine reads it before writing. The emails are written *to* Fredo in Fredo's rhythm —
 not as him, and not as an app.
 
