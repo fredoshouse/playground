@@ -39,11 +39,17 @@ Still undated. These need dates before they're real.
 - [ ] Anniversary planned and paid for
 - [ ] Conference prep — October readiness
 - [ ] Finish the book
+- [ ] Three articles are seeded and unwritten — see `writing/`
 
 ## What's actually going on — as of Sept 9
 Context the coach should be holding, not scoring.
 
-**Work.** Ghostnote wants him on the external side reporting to Steve: inbound leads,
+**Work.** Took the PM seat back this week and ran a project end to end — timeline, scope,
+client, assignments, meetings, alignment. Led it, and said plainly that he's among the
+best in the world at it and that it's what he actually earns on. Hold onto that: it's the
+first time in these check-ins he's claimed something without hedging.
+
+Ghostnote wants him on the external side reporting to Steve: inbound leads,
 prospecting, bringing business in, building the brand and the culture. Two agencies now —
 one internal role, one external. His own read: this is working *on* the business instead
 of *in* it, he's been hiding in the shadows, and it has to become part of his identity
